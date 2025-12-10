@@ -1,0 +1,157 @@
+#ifndef CUB3D_H
+#define CUB3D_H
+
+#include <mlx.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include "get_next_line/get_next_line.h"
+#include <string.h>
+
+#define SUCCESS 1
+#define FAILURE 0
+#define CONTINUE -1
+
+// typedef struct s_image
+// {
+//     void *img;
+//     char *addr;
+//     int bits_per_pixel;
+//     int line_length;
+//     int endian;
+// }   t_image;
+
+// typedef struct s_raycast
+// {
+//     double player_x;
+//     double player_y;
+//     double dir_x;
+//     double dir_y;
+//     double plane_x;
+//     double plane_y;
+//     double camera_x;
+//     double ray_dir_x;
+//     double ray_dir_y;
+//     int map_x;
+//     int map_y;
+//     double side_dist_x;
+//     double side_dist_y;
+//     double delta_dist_x;
+//     double delta_dist_y;
+//     double perp_wall_dist;
+//     int step_x;
+//     int step_y;
+//     int hit;
+//     int side;
+//     int line_height;
+//     int draw_start;
+//     int draw_end;
+//     void *img_data;
+// }   t_raycast;
+
+typedef struct s_map
+{
+    char **map;
+    char *line;
+    int width;
+    int height;
+    int tile_size;
+
+}   t_map;
+
+typedef struct s_texture_table
+{
+    char *key;
+    char **target;
+    int key_len;
+}   t_texture_table;
+
+typedef struct s_rgb
+{
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+
+}   t_rgb;
+
+typedef struct s_texture
+{
+    char *north_texture;
+    char *west_texture;
+    char *south_texture;
+    char *east_texture;
+
+}   t_texture;
+
+typedef struct s_player
+{
+    int x;
+    int y;
+    int player_count;
+    char direction;
+
+}   t_player;
+
+typedef struct s_game_data
+{
+    void *mlx;
+    void *win;
+    t_map map;
+    t_texture texture;
+    t_rgb floor;
+    t_rgb ceiling;
+    t_player player;
+    t_raycast raycast;
+    t_image image;
+    int first_phase_done;
+    int ceiling_set;
+    int floor_set;
+    
+}   t_game_data;
+
+
+void *parse_game(t_game_data *data,char *map);
+char **parse_map(t_game_data *data, char *map);
+char *find_texture_path(char *map_line);
+int validate_map_info(t_game_data *data,char *map_line);
+
+//free.c
+void free_textures(t_game_data *data);
+void free_2d_array(char **string);
+
+//libft
+int	ss_counter(char const *s, char c);
+char	*get_c(char const *s, int *i, char c);
+char	**ft_split(char const *s, char c);
+void	free_split_result(char **result);
+size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize);
+
+
+//map.c
+char **validate_map(t_game_data *data,int fd);
+int char_patrol(char c);
+
+//parsing.c
+char *delete_newlines(char *map_line);
+
+//dfs.c
+int locate_player(t_game_data *data);
+int is_player(char c);
+int is_walkable(char c);
+int is_out_of_bounds(t_game_data *data, int x, int y);
+int check_neighbor(t_game_data *data, int x, int y);
+int dfs(t_game_data *data, char **visited, int x, int y);
+char **create_visited_map(t_game_data *data);
+int validate_map_with_dfs(t_game_data *data);
+
+//execution.c
+void init_player_direction(t_game_data *data);
+void raycast(t_game_data *data, t_image *img);
+void move_player(t_game_data *data, double move_x, double move_y);
+void rotate_player(t_game_data *data, double angle);
+int key_press(int keycode, t_game_data *data);
+int game_loop(t_game_data *data);
+int close_window(t_game_data *data);
+void start_game(t_game_data *data);
+
+#endif
