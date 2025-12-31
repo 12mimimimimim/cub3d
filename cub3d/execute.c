@@ -19,11 +19,11 @@ int close_window(t_game_data *data)
     exit(0);
 }
 
-void    put_pixel(t_image *img, int s_w, int s_h, int x, int y, int color)
+void    put_pixel(t_image *img, int x, int y, int color)
 {
     char    *dst;
 
-    if (x < 0 || x >= s_w || y < 0 || y >= s_h)
+    if (x < 0 || x >= SCREEN_WIDTH || y < 0 || y >= SCREEN_HEIGHT)
         return;
 
     dst = img->addr + (y * img->line_length + x * (img->bits_per_pixel / 8));
@@ -44,16 +44,18 @@ void render_game(t_game_data *data)
     while (x < SCREEN_WIDTH)
     {
         //GET RAY POSITION AND DIRECTION
-        data->raycast.camera_x = 2 * x / (double)SCREEN_WIDTH - 1;
-        data->raycast.dir_x = data->player.dir_x + data->player.plane_x * data->raycast.camera_x;
-        data->raycast.dir_y = data->player.dir_y + data->player.plane_y * data->raycast.camera_x;
+        //Camera x represents how left or right the ray direction is
+        data->raycast.camera_x = 2 * (x / (double)SCREEN_WIDTH) - 1;
+        //CALCULATE ACTUAL RAY DIRECTION X & Y
+        data->raycast.dir_x = data->player.dir_x + (data->player.plane_x * data->raycast.camera_x);
+        data->raycast.dir_y = data->player.dir_y + (data->player.plane_y * data->raycast.camera_x);
         
         //PERFORMING RAYCASTING
         //SET WHICH BOX OF MAP WE ARE IN
         data->raycast.map_x = (int)data->player.x;
         data->raycast.map_y = (int)data->player.y;
 
-        //SETTING LENGTH OF RAY FROM ONE X/Y SIDE TO NEXT
+        //SETTING HOW FAR RAY TRAVELS TO CROSS ONE GRID SQUARE
         data->raycast.delta_dis_x = 1e30;
         if (data->raycast.dir_x != 0)
             data->raycast.delta_dis_x = fabs(1.0 / data->raycast.dir_x);
@@ -62,22 +64,24 @@ void render_game(t_game_data *data)
             data->raycast.delta_dis_y = fabs(1.0 / data->raycast.dir_y);
 
         //INITIALIZE STEP X, STEP Y, SIDE DIST X, SIDE DIST Y
-        if (data->raycast.dir_x < 0)
+        if (data->raycast.dir_x < 0) // RAY GOING LEFT
         {
             data->raycast.step_x = -1;
+            //REPRESENTS RAY DISTANCE CURR POSITION TO NEXT X GRID LINE
             data->raycast.side_dis_x = (data->player.x - data->raycast.map_x) * data->raycast.delta_dis_x;
         }
-        else
+        else // RAY GOING RIGHT
         {
             data->raycast.step_x = 1;
             data->raycast.side_dis_x = (data->raycast.map_x + 1.0 - data->player.x) * data->raycast.delta_dis_x;
         }   
-        if (data->raycast.dir_y < 0)
+        if (data->raycast.dir_y < 0) //RAY GOING UP 
         {
             data->raycast.step_y = -1;
+            //REPRESENTS RAY DISTANCE CURR POSITION TO NEXT X GRID LINE
             data->raycast.side_dis_y = (data->player.y - data->raycast.map_y) * data->raycast.delta_dis_y;
         }
-        else
+        else // RAY GOING DOWN
         {
             data->raycast.step_y = 1;
             data->raycast.side_dis_y = (data->raycast.map_y + 1.0 - data->player.y) * data->raycast.delta_dis_y;
@@ -89,19 +93,20 @@ void render_game(t_game_data *data)
         //DDA LOOP
         while (data->raycast.hit == 0)
         {
+            //CHECK WHICH GRID LINE IS CLOSER
             //JUMP TO NEXT SQUARE IN MAP IN X DIRECTION
             if (data->raycast.side_dis_x < data->raycast.side_dis_y)
             {
-                data->raycast.side_dis_x += data->raycast.delta_dis_x;
+                data->raycast.side_dis_x += data->raycast.delta_dis_x; //increment side dist x
                 data->raycast.map_x  += data->raycast.step_x;
-                data->raycast.side = 0;
+                data->raycast.side = 0; //HIT EAST/WEST WALL
             }
             //JUMP TO NEXT SQUARE IN MAP IN Y DIRECTION
             else
             {
-                data->raycast.side_dis_y += data->raycast.delta_dis_y;
+                data->raycast.side_dis_y += data->raycast.delta_dis_y; //increment side distance y
                 data->raycast.map_y  += data->raycast.step_y;
-                data->raycast.side = 1;
+                data->raycast.side = 1; //HIT NORTH/SOUTH WALL
             }
             //Check if ray has hit a wall
             if (data->map.map[data->raycast.map_y][data->raycast.map_x] == '1') 
@@ -115,10 +120,10 @@ void render_game(t_game_data *data)
         else          
             perpWallDist = (data->raycast.side_dis_y - data->raycast.delta_dis_y);
 
-        printf("x=%d, player=(%.2f,%.2f), map=(%d,%d), perpWallDist=%.3f, side=%d\n",
-        x, data->player.x, data->player.y,
-        data->raycast.map_x, data->raycast.map_y,
-        perpWallDist, data->raycast.side);
+        // printf("x=%d, player=(%.2f,%.2f), map=(%d,%d), perpWallDist=%.3f, side=%d\n",
+        // x, data->player.x, data->player.y,
+        // data->raycast.map_x, data->raycast.map_y,
+        // perpWallDist, data->raycast.side);
 
         //CALCULATE LINE HEIGHT & DRAW POSITIONS
         int line_h;
@@ -135,7 +140,7 @@ void render_game(t_game_data *data)
         if (drawEnd >= SCREEN_HEIGHT) 
             drawEnd = SCREEN_HEIGHT - 1;
 
-        printf("x=%d, drawStart=%d, drawEnd=%d\n", x, drawStart, drawEnd);
+        //printf("x=%d, drawStart=%d, drawEnd=%d\n", x, drawStart, drawEnd);
 
         //DRAW VERTICAL LINE
         int y;
@@ -148,32 +153,34 @@ void render_game(t_game_data *data)
             
         while (y <= drawEnd)
         {
-            put_pixel(&img, SCREEN_WIDTH, SCREEN_HEIGHT, x, y, color_line);
+            put_pixel(&img, x, y, color_line);
             y++;
         }
 
         // ceiling
-        int color_c = (data->ceiling.r << 16) | (data->ceiling.g << 8) | data->ceiling.b;
+        int color_c;
+        color_c = (data->ceiling.r << 16) | (data->ceiling.g << 8) | data->ceiling.b;
         y = 0;
         while (y < drawStart)
         {
-            put_pixel(&img, SCREEN_WIDTH, SCREEN_HEIGHT, x, y, color_c);
+            put_pixel(&img, x, y, color_c);
             y++;
         }
 
         // floor
-        int color_f = (data->floor.r << 16) | (data->floor.g << 8) | data->floor.b;
+        int color_f;
+        color_f = (data->floor.r << 16) | (data->floor.g << 8) | data->floor.b;
         y = drawEnd + 1;
         while (y < SCREEN_HEIGHT)
         {
-            put_pixel(&img, SCREEN_WIDTH, SCREEN_HEIGHT, x, y, color_f);
+            put_pixel(&img, x, y, color_f);
             y++;
         }
 
         x++; //INCREMENT WHILE LOOP
     }
     
-    // SEND IMAGE TO WINDOW
+    // SEND COMPLETE IMAGE TO WINDOW AND DISPLAY IT
     mlx_put_image_to_window(data->mlx, data->win, img.img, 0, 0);
 
     //DESTROY OLD IMAGE TO PREVENT MEM LEEK :)
@@ -206,9 +213,9 @@ void rotate_player(t_game_data *data, int direction)
     speed = ROTATE_SPEED * direction;
 
     //ROTATE DIRECTION
-    old_dir_x = data->raycast.dir_x;
-    data->raycast.dir_x =  data->raycast.dir_x * cos(speed) - data->raycast.dir_y * sin(speed);
-    data->raycast.dir_y =  old_dir_x * sin(speed) + data->raycast.dir_y * cos(speed);
+    old_dir_x = data->player.dir_x;
+    data->player.dir_x =  data->player.dir_x * cos(speed) - data->player.dir_y * sin(speed);
+    data->player.dir_y =  old_dir_x * sin(speed) + data->player.dir_y * cos(speed);
 
     //ROTATE PLANE
     old_plane_x = data->player.plane_x;
@@ -222,16 +229,16 @@ int key_press(int keycode, t_game_data *data)
         close_window(data->win);
     if (keycode == 119 || keycode == 13) //W
         move_player(data, data->player.dir_x * SPEED, data->player.dir_y * SPEED);
-    else if (keycode == 100 || keycode == 0) //A
+    else if (keycode == 97 || keycode == 0) //A
         move_player(data, -data->player.plane_x * SPEED, -data->player.plane_y * SPEED);
     else if (keycode == 115 || keycode == 1) //S
         move_player(data, -data->player.dir_x * SPEED, -data->player.dir_y * SPEED);
-    else if (keycode == 97 || keycode == 2) //D
+    else if (keycode == 100 || keycode == 2) //D
         move_player(data, data->player.plane_x * SPEED, data->player.plane_y * SPEED);
     //ROTATION
-    else if (keycode == 65363 || keycode == 123) //LEFT ARROW
+    else if (keycode == 65361 || keycode == 123) //LEFT ARROW
         rotate_player(data, -1);
-    else if (keycode == 65361 || keycode == 124) //RIGHT ARROW 
+    else if (keycode == 65363 || keycode == 124) //RIGHT ARROW 
         rotate_player(data, 1);
     //RE RENDER AFTER MOVEMENT
     render_game(data);
@@ -242,30 +249,30 @@ void set_player_direction(t_game_data *data)
 {
     if (data->player.direction == 'N')
     {
-        data->player.dir_x = 0;
-        data->player.dir_y = -1;
+        data->player.dir_x = 0.0;
+        data->player.dir_y = -1.0;
         data->player.plane_x = 0.66;
-        data->player.plane_y = 0;
+        data->player.plane_y = 0.0;
     }
     else if (data->player.direction == 'S')
     {
-        data->player.dir_x = 0;
-        data->player.dir_y = 1;
+        data->player.dir_x = 0.0;
+        data->player.dir_y = 1.0;
         data->player.plane_x = -0.66;
-        data->player.plane_y = 0;
+        data->player.plane_y = 0.0;
     }
     else if (data->player.direction == 'E')
     {
-        data->player.dir_x = 1;
-        data->player.dir_y = 0;
-        data->player.plane_x = 0;
+        data->player.dir_x = 1.0;
+        data->player.dir_y = 0.0;
+        data->player.plane_x = 0.0;
         data->player.plane_y = 0.66;
     }
     else if (data->player.direction == 'W')
     {
-        data->player.dir_x = -1;
-        data->player.dir_y = 0;
-        data->player.plane_x = 0;
+        data->player.dir_x = -1.0;
+        data->player.dir_y = 0.0;
+        data->player.plane_x = 0.0;
         data->player.plane_y = -0.66;
     }
 }
@@ -296,7 +303,9 @@ void start_game(t_game_data *data)
     //INITIALIZE PLAYER DIRECTION AND FOV
     set_player_direction(data);
 
+    //RENDER GAME
     render_game(data);
+
     //MLX HOOKS
     mlx_hook(data->win, 2, 1L<<0, key_press, data);
     mlx_hook(data->win, 17, 0, close_window, data);
