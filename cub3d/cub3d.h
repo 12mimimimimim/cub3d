@@ -26,6 +26,12 @@ typedef struct s_image
     int endian; //how color is stored in memory (typically 0 in linux/mac = BGRA) least sig byte first (rightmost)
 }   t_image;
 
+typedef struct s_tex
+{
+    t_image image;
+    int width;
+    int height;
+} t_tex;
 
 typedef struct s_map
 {
@@ -105,6 +111,10 @@ typedef struct s_game_data
     int first_phase_done;
     int ceiling_set;
     int floor_set;
+    t_tex north;
+    t_tex south;
+    t_tex east;
+    t_tex west;
     
 }   t_game_data;
 

@@ -12,6 +12,24 @@
 
 #include "cub3d.h"
 
+void load_texture(t_game_data *data, t_tex *tex, char *path)
+{
+    tex->image.img = mlx_xpm_file_to_image(data->mlx, path, 
+                    &tex->width, 
+                    &tex->height);
+    if (!tex->image.img)
+    {
+        printf("[ERROR] FAILED TO LOAD TEXTURE: %s\n", path);
+        //FREE DATA?
+        exit(1);
+    }
+    tex->image.addr = mlx_get_data_addr(
+                    tex->image.img,
+                    &tex->image.bits_per_pixel,
+                    &tex->image.line_length,
+                    &tex->image.endian);
+}   
+
 int close_window(t_game_data *data)
 {
     //TO DO: FREE STUFF
@@ -130,7 +148,10 @@ void render_game(t_game_data *data)
         int drawStart;
         int drawEnd;
 
+        //HOW TALL IS WALL?
         line_h = (int)(SCREEN_HEIGHT / perpWallDist);
+
+        //CENTER WALL VERTICALLY ON SCREEN
         drawStart = -line_h / 2 + SCREEN_HEIGHT / 2;
         drawEnd   = line_h / 2 + SCREEN_HEIGHT / 2;
 
@@ -140,20 +161,67 @@ void render_game(t_game_data *data)
         if (drawEnd >= SCREEN_HEIGHT) 
             drawEnd = SCREEN_HEIGHT - 1;
 
-        //printf("x=%d, drawStart=%d, drawEnd=%d\n", x, drawStart, drawEnd);
+        //DRAWING WALL TEXTURES
+        //WHICH PART OF THE WALL DID THE RAY HIT?
+        //WHICH VERTICAL SLICE OF TEXTURE TO USE
+        double wall_x;      //BETWEEN 0.0 AND 1.0
+        if (data->raycast.side == 0)
+            wall_x = data->player.y + perpWallDist * data->raycast.dir_y;
+        else    
+            wall_x = data->player.x + perpWallDist * data->raycast.dir_x;
+        //TO MAKE IT START FROM 0
+        wall_x -= floor(wall_x);
 
-        //DRAW VERTICAL LINE
+        //DETERMINE WHICH TEXTURE IT IS:
+        t_tex *tex;
+
+        if (data->raycast.side == 0)
+        {
+            if (data->raycast.dir_x > 0)
+                tex = &data->west;
+            else
+                tex = &data->east;
+        }
+        else
+        {
+            if (data->raycast.dir_y > 0)
+                tex = &data->north;
+            else
+                tex = &data->south;
+        }
+
+        //TEXTURE X COORDINATE
+        //EACH RAY PICKS DIFF TEXTURE COLUMN
+        int tex_x; //x coordinate of texture based on wall hit
+        tex_x = (int)(wall_x * tex->width);
+        //FLIP TEXTURE COLUMN WHEN NEEDED (MIRRORING)
+        if (data->raycast.side == 0 && data->raycast.dir_x > 0)
+            tex_x = tex->width - tex_x - 1;
+        if (data->raycast.side == 1 && data->raycast.dir_y < 0)
+            tex_x = tex->width - tex_x - 1;
+
+        //DRAW TEXTURED WALL COLUMN
+        double step = 1.0 * tex->height / line_h; //How muh texture height corresponds to one pixel
+        //align text top with wall top
+        //Which vertical pixel of the texture corresponds to the first wall pixel on screen
+        //we want tex_y = 0 at draw start
+        //double tex_pos = (drawStart - SCREEN_HEIGHT / 2 + line_h / 2) * step;
+        double tex_pos = 0;
         int y;
         y = drawStart;
-        int color_line;
-        if (data->raycast.side == 1)
-            color_line = (127 << 16) | (0 << 8) | 0; // Darker red for NS walls
-        else
-            color_line = (255 << 16) | (0 << 8) | 0; // Bright red for EW walls
             
         while (y <= drawEnd)
         {
-            put_pixel(&img, x, y, color_line);
+            int tex_y = (int)tex_pos % tex->height;
+            tex_pos += step;
+
+            //get color at specific texture point
+            char *src = tex->image.addr +
+                (tex_y * tex->image.line_length +
+                tex_x * (tex->image.bits_per_pixel / 8));
+
+            int color = *(unsigned int *)src;
+            put_pixel(&img, x, y, color);
             y++;
         }
 
@@ -225,20 +293,20 @@ void rotate_player(t_game_data *data, int direction)
 
 int key_press(int keycode, t_game_data *data)
 {
-    if (keycode == 65307 || keycode == 53) //ESC
-        close_window(data->win);
-    if (keycode == 119 || keycode == 13) //W
+    if (keycode == 65307) //ESC
+        close_window(data);
+    if (keycode == 119) //W
         move_player(data, data->player.dir_x * SPEED, data->player.dir_y * SPEED);
-    else if (keycode == 97 || keycode == 0) //A
+    else if (keycode == 97) //A
         move_player(data, -data->player.plane_x * SPEED, -data->player.plane_y * SPEED);
-    else if (keycode == 115 || keycode == 1) //S
+    else if (keycode == 115) //S
         move_player(data, -data->player.dir_x * SPEED, -data->player.dir_y * SPEED);
-    else if (keycode == 100 || keycode == 2) //D
+    else if (keycode == 100) //D
         move_player(data, data->player.plane_x * SPEED, data->player.plane_y * SPEED);
     //ROTATION
-    else if (keycode == 65361 || keycode == 123) //LEFT ARROW
+    else if (keycode == 65361) //LEFT ARROW
         rotate_player(data, -1);
-    else if (keycode == 65363 || keycode == 124) //RIGHT ARROW 
+    else if (keycode == 65363) //RIGHT ARROW 
         rotate_player(data, 1);
     //RE RENDER AFTER MOVEMENT
     render_game(data);
@@ -279,18 +347,13 @@ void set_player_direction(t_game_data *data)
 
 void start_game(t_game_data *data)
 {
-    //int screen_w;
-    //int screen_h;
-
-     //INITIALIZE MLX
+    //INITIALIZE MLX
     data->mlx = mlx_init();
     if (!data->mlx)
     {
         printf("[ERROR] Failed to initialize MLX\n");
         return ;
     }
-    //GET SCREEN WIDTH AND HEIGHT
-    //mlx_get_screen_size(data->mlx, &screen_w, &screen_h);
 
     //INITIALIZE MLX WINDOW
     data->win = mlx_new_window(data->mlx, SCREEN_WIDTH,  SCREEN_HEIGHT, "AMAZING CubXD");
@@ -299,6 +362,12 @@ void start_game(t_game_data *data)
         printf("[ERROR] Failed to create window\n");
         return ;
     }
+
+    // LOAD WALL TEXTURES HERE ⬇️⬇️⬇️
+    load_texture(data, &data->north, data->texture.north_texture);
+    load_texture(data, &data->south, data->texture.south_texture);
+    load_texture(data, &data->east,  data->texture.east_texture);
+    load_texture(data, &data->west,  data->texture.west_texture);
 
     //INITIALIZE PLAYER DIRECTION AND FOV
     set_player_direction(data);

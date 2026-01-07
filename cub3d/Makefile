@@ -1,8 +1,7 @@
-NAME = cub3d
+NAME = cub3D
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -Iminilibx-linux -O3
-#CFLAGS = -Wall -Wextra -Werror -O3 -Iminilibx
 
 SRCS =  main.c	   \
 		parsing.c	\
@@ -21,10 +20,6 @@ GET_NEXT_LINE_OBJ = $(GET_NEXT_LINE_SRC:.c=.o)
 MLX_DIR = minilibx-linux
 MLX = $(MLX_DIR)/libmlx_Linux.a
 LDFLAGS = $(MLX) -L/usr/lib -lXext -lX11 -lm -lz
-
-#MLX_DIR = minilibx_opengl
-#MLX_LIB = $(MLX_DIR)/libmlx.a
-#LDFLAGS = -L$(MLX_DIR) -lmlx -framework OpenGL -framework AppKit
 
 all: $(NAME)
 
