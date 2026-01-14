@@ -1,10 +1,12 @@
-NAME = cub3d
+NAME = cub3D
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -Iminilibx-linux -O3
 
 SRCS =  main.c	   \
 		parsing.c	\
+		parsing_val.c \
+		parsing_utils.c \
 		free.c		\
 		ft_split.c	\
 		map.c		\
