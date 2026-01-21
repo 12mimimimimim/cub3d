@@ -1,0 +1,51 @@
+{
+   MLX_Leak_1
+   Memcheck:Leak
+   ...
+   fun:mlx_init
+}
+
+{
+   MLX_Leak_2
+   Memcheck:Leak
+   ...
+   fun:mlx_new_window
+}
+
+{
+   MLX_Leak_3
+   Memcheck:Leak
+   ...
+   fun:mlx_xpm_file_to_image
+}
+
+{
+   MLX_Leak_4
+   Memcheck:Leak
+   ...
+   obj:*/libmlx*.so*
+}
+
+{
+   MLX_Leak_5
+   Memcheck:Leak
+   ...
+   obj:*/libX11.so*
+}
+
+{
+   X11_writev_uninit
+   Memcheck:Param
+   writev(vector[...])
+   fun:writev
+   obj:*/libxcb.so*
+   ...
+}
+
+{
+   X11_writev_vector0
+   Memcheck:Param
+   writev(vector[0])
+   ...
+   fun:mlx_*
+}
