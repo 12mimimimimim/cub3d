@@ -50,7 +50,14 @@ int main(int argc, char *argv[])
     data = (t_game_data){0};
     if (argc == 2)
     {
-        parse_map(&data, argv[1]);
+        if (!parse_map(&data, argv[1]))
+        {   
+            printf("no map passed\n");
+            free_2d_array(data.map.map);
+            free_textures(&data);
+            get_next_line(42);
+            return (1);
+        }
         patch_map(&data);
         
         if (validate_map_with_dfs(&data) == FAILURE)

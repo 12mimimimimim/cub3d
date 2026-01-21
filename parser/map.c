@@ -81,14 +81,14 @@ char	**validate_map(t_game_data *data, int fd)
 	max_i = 0;
 	line_count = 0;
 	while (data->map.line)
-	{
+	{	
 		original_line = data->map.line;
 		if (process_map_line(data,
 				&cleaned_line, &max_i) == FAILURE)
-			return (free(original_line), NULL);
+			return (free_2d_array(data->map.map),free(original_line), NULL);
 		line_count++;
 		data->map.map = update_map(data->map.map,
-				strdup(cleaned_line), line_count);
+				ft_strdup(cleaned_line), line_count);
 		if (!data->map.map)
 			return (free(original_line),free(cleaned_line), NULL);
 		free(original_line);

@@ -6,7 +6,7 @@ CFLAGS = -Wall -Wextra -Werror -Iminilibx-linux -O3
 SRCS =  main.c	   \
 		free.c		\
 		ft_split.c	\
-		parser/cub3d_utils.c \
+		cub3d_utils.c \
 		parser/dfs_stacks_utils.c \
 		parser/dfs_utils.c		  \
 		parser/dfs.c			  \

@@ -73,6 +73,8 @@ int	validate_rgb(char *str, unsigned char *result)
 
 	i = 0;
 	num = 0;
+	if (!str)
+		return (FAILURE);
 	if (ft_strlen(str) > 4)
 		return (ft_putstr_fd("bigger than 4\n", 2), FAILURE);
 	while (str[i])

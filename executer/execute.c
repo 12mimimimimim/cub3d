@@ -6,7 +6,7 @@
 /*   By: didris <didris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/13 14:42:27 by didris            #+#    #+#             */
-/*   Updated: 2026/01/21 12:41:03 by didris           ###   ########.fr       */
+/*   Updated: 2026/01/21 17:08:00 by didris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ void	start_game(t_game_data *data)
 		return ;
 	}
 	data->win = mlx_new_window(data->mlx, SCREEN_W,
-			SCREEN_H, "AMAZING CubXD");
+			SCREEN_H, "Amazing CubXD");
 	if (!data->win)
 	{
 		printf("[ERROR] Failed to create window\n");

@@ -25,7 +25,7 @@ void free_2d_array(char **string)
 	int i;
 
 	i = 0;
-	if (!string)
+	if (!string || !string[0])
 		return;
 	while(string[i])
 	{

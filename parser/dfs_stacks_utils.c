@@ -50,6 +50,7 @@ int	stack_pop(t_stack *stack, int *x, int *y)
 
 int	stack_is_empty(t_stack *stack)
 {
+	//printf("stack is not empty\n");
 	return (stack->top == NULL);
 }
 

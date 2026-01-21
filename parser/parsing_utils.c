@@ -34,6 +34,7 @@ int	validate_color(t_game_data *data, char *map_line, char type)
 		|| validate_rgb(rgb_values[2], &color->b) == FAILURE)
 	{
 		free_2d_array(rgb_values);
+		free(rgb_values);
 		return (ft_putstr_fd("invalid rgb input\n", 2), FAILURE);
 	}
 	free_2d_array(rgb_values);

@@ -56,6 +56,8 @@ int	is_out_of_bounds(t_game_data *data, int x, int y)
 		return (1);
 	if (x < 0 || x >= data->map.width)
 		return (1);
+	//printf("contents of y :[%d]\n",y);
+	//printf("contents of x :[%d]\n",x);
 	return (0);
 }
 
