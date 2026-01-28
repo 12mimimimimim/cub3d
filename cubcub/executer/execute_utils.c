@@ -19,7 +19,9 @@ void	load_texture(t_game_data *data, t_tex *tex, char *path)
 			&tex->height);
 	if (!tex->image.img)
 	{
-		printf("[ERROR] FAILED TO LOAD TEXTURE: %s\n", path);
+		ft_putstr_fd("Error\nFailed to load texture: ");
+		ft_putstr_fd(path, 2);
+		ft_putstr_fd("\n", 2);
 		free_2d_array(data->map.map);
 		free_textures(data);
 		get_next_line(42);

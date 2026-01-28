@@ -34,7 +34,7 @@ int	validate_color(t_game_data *data, char *map_line, char type)
 		|| validate_rgb(rgb_values[2], &color->b) == FAILURE)
 	{
 		free_2d_array(rgb_values);
-		return (ft_putstr_fd("Error [invalid rgb input]\n", 2), FAILURE);
+		return (ft_putstr_fd("Error\n[invalid rgb input]\n", 2), FAILURE);
 	}
 	free_2d_array(rgb_values);
 	*set_flag = 1;
@@ -63,7 +63,7 @@ int	validate_texture(t_game_data *data, char *map_line)
 			&& map_line[textures[i].key_len] == ' ')
 		{
 			if (*textures[i].target)
-				return (ft_putstr_fd("Error [dup texture]\n", 2), FAILURE);
+				return (ft_putstr_fd("Error\n[dup texture]\n", 2), FAILURE);
 			return (*textures[i].target = ft_strdup(txt(map_line)), SUCCESS);
 		}
 	}

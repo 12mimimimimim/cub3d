@@ -73,7 +73,7 @@ int	main(int argc, char *argv[])
 	if (argc == 2)
 	{
 		if (!parse_map(&data, argv[1]))
-			return (ft_putstr_fd("Error [Invalid map file]\n", 2),
+			return (ft_putstr_fd("Error\n[Invalid map file]\n", 2),
 				free_textures(&data), get_next_line(42), 1);
 		patch_map(&data);
 		if (validate_map_with_dfs(&data) == FAILURE)
@@ -86,7 +86,7 @@ int	main(int argc, char *argv[])
 	}
 	else
 	{
-		ft_putstr_fd("Error [usage ./cub3D <map path>\n]", 2);
+		ft_putstr_fd("Error\n[usage ./cub3D <map path>]\n", 2);
 		return (1);
 	}
 	return (0);

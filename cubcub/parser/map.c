@@ -52,7 +52,7 @@ int	process_map_line(t_game_data *data,
 	*cleaned_line = delete_newlines(data->map.line);
 	if ((*cleaned_line)[0] == '\0')
 	{
-		ft_putstr_fd("Error [hole spotted in the map!]\n", 2);
+		ft_putstr_fd("Error\n[hole spotted in the map!]\n", 2);
 		free(*cleaned_line);
 		return (FAILURE);
 	}
@@ -60,7 +60,7 @@ int	process_map_line(t_game_data *data,
 	{
 		if (char_patrol((*cleaned_line)[i]) == FAILURE)
 		{
-			ft_putstr_fd("Error [incorrect character spotted]\n", 2);
+			ft_putstr_fd("Error\n[incorrect character spotted]\n", 2);
 			free(*cleaned_line);
 			return (FAILURE);
 		}

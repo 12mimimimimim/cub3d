@@ -36,7 +36,7 @@ int	locate_player(t_game_data *data)
 		y++;
 	}
 	if (data->player.player_count != 1)
-		return (ft_putstr_fd("Error [invalid player count]\n", 1), FAILURE);
+		return (ft_putstr_fd("Error\n[invalid player count]\n", 1), FAILURE);
 	return (SUCCESS);
 }
 

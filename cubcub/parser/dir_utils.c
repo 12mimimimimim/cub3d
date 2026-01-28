@@ -35,7 +35,7 @@ int	process_single_neighbor(t_dfs_context *ctx, int dir_x, int dir_y)
 	check = check_neighbor(ctx->data, new_x, new_y);
 	if (check == FAILURE)
 	{
-		ft_putstr_fd("Error [hole in the wall spotted!]\n", 2);
+		ft_putstr_fd("Error\n[hole in the wall spotted!]\n", 2);
 		return (FAILURE);
 	}
 	if (check == CONTINUE)

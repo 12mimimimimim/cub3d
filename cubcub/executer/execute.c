@@ -80,14 +80,14 @@ void	start_game(t_game_data *data)
 	data->mlx = mlx_init();
 	if (!data->mlx)
 	{
-		printf("[ERROR] Failed to initialize MLX\n");
+		ft_putstr_fd("Error\nFailed to initialize MLX\n", 2);
 		return ;
 	}
 	data->win = mlx_new_window(data->mlx, SCREEN_W,
 			SCREEN_H, "Amazing CubXD");
 	if (!data->win)
 	{
-		printf("[ERROR] Failed to create window\n");
+		ft_putstr_fd("Error\nFailed to create window\n", 2);
 		return ;
 	}
 	load_texture(data, &data->north, data->texture.north_texture);

@@ -76,11 +76,11 @@ int	validate_rgb(char *str, unsigned char *result)
 	if (!str)
 		return (FAILURE);
 	if (ft_strlen(str) > 4)
-		return (ft_putstr_fd("bigger than 4\n", 2), FAILURE);
+		return (ft_putstr_fd("Error\n[bigger than 4]\n", 2), FAILURE);
 	while (str[i])
 	{
 		if (str[i] < '0' || str[i] > '9')
-			return (ft_putstr_fd("Error [non-numeric number]\n", 2), FAILURE);
+			return (ft_putstr_fd("Error\n[non-numeric number]\n", 2), FAILURE);
 		i++;
 	}
 	i = 0;
@@ -88,7 +88,7 @@ int	validate_rgb(char *str, unsigned char *result)
 	{
 		num = num * 10 + (str[i] - '0');
 		if (num > 255)
-			return (ft_putstr_fd("ERROR [rgb range]\n", 2), FAILURE);
+			return (ft_putstr_fd("ERROR\n[rgb range]\n", 2), FAILURE);
 		i++;
 	}
 	*result = (unsigned char)num;

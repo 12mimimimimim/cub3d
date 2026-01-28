@@ -79,7 +79,7 @@ int	validate_map_with_dfs(t_game_data *data)
 	visited = create_visited_map(data);
 	if (!visited)
 	{
-		ft_putstr_fd("Error [allocation error in char **visited]\n", 2);
+		ft_putstr_fd("Error\n[allocation error in char **visited]\n", 2);
 		return (FAILURE);
 	}
 	result = dfs(data, visited, data->player.x, data->player.y);
@@ -87,6 +87,6 @@ int	validate_map_with_dfs(t_game_data *data)
 	if (result == SUCCESS)
 		ft_putstr_fd("[MAP FULLY VALIDATED]\n", 1);
 	else
-		ft_putstr_fd("Error [MAP VALIDATED UNSUCCESFULLY]\n", 2);
+		ft_putstr_fd("Error\n[MAP VALIDATED UNSUCCESFULLY]\n", 2);
 	return (result);
 }
