@@ -63,12 +63,19 @@ void	move_player(t_game_data *data, double move_x, double move_y)
 {
 	double	new_x;
 	double	new_y;
+	double	old_x;
+	double	old_y;
 
 	new_x = data->player.x + move_x;
 	new_y = data->player.y + move_y;
-	if (data->map.map[(int)(new_y)][(int)(new_x)] != '1')
+	old_x = data->player.x;
+	old_y = data->player.y;
+	if (data->map.map[(int)(old_y)][(int)(new_x)] != '1')
 	{
 		data->player.x = new_x;
+	}
+	if (data->map.map[(int)(new_y)][(int)(old_x)] != '1')
+	{
 		data->player.y = new_y;
 	}
 }
